@@ -61,7 +61,7 @@ def recomendaciones(vecinos):
 
         for vecino in vecinos:
             userRatings = []
-            userRatings = [item for item in ratingsList if int(item[0])==x]
+            userRatings = [item for item in ratingsList if int(item[0])==vecino[0]]
 
             for rating in userRatings:
                 if not any(movie[0] == rating[1] for movie in randomMovies):
