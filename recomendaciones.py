@@ -8,7 +8,8 @@ randomMovies = []
 randomMoviesRatings = []
 mediaUsuarioActual = 0
 similitudes = []
-recomendacionesID = []
+peliculasAEvaluar = []
+prediccionesRating = []
 
 def sortSimilitudes(val):
     return val[1]
@@ -49,15 +50,19 @@ def similitudUsuarios():
             
             if(moduloUser1 != 0 and moduleUser2 != 0):
                 pearson = numerador/(math.sqrt(moduloUser1)*math.sqrt(moduleUser2))
-                similitudes.append([x, pearson])
+                similitudes.append([x, round(pearson,1)])
+            else:
+                similitudes.append([x, 0])
 
         similitudes.sort(key=lambda x: x[1], reverse=True)
 
-def recomendaciones(vecinos):
+def predicciones(vecinos):
     with open('./ml-latest-small/ratings.csv') as csvfile:
         ratingsReader = csv.reader(csvfile, delimiter=',')
         ratingsList = list(ratingsReader)
         ratingsList.pop(0)
+        peliculasAEvaluar = []
+        contador = 0
 
         for vecino in vecinos:
             userRatings = []
@@ -65,7 +70,29 @@ def recomendaciones(vecinos):
 
             for rating in userRatings:
                 if not any(movie[0] == rating[1] for movie in randomMovies):
-                    recomendacionesID.append(rating[1])
+                    peliculasAEvaluar.append(rating[1])
+
+        peliculasAEvaluar = list(dict.fromkeys(peliculasAEvaluar))
+
+        for movieId in peliculasAEvaluar:
+            contador += 1
+            numerador = 0
+            denominador = 0
+
+            movieRatings = [item for item in ratingsList if movieId==item[1]]
+            for rating in movieRatings:
+                vecinoExists = [item for item in vecinos if int(rating[0])==item[0]]
+
+                if len(vecinoExists):
+                    #print(vecinoExists, rating)
+                    numerador += float(vecinoExists[0][1]) * float(rating[2])
+                    denominador += float(vecinoExists[0][1])
+
+            if denominador != 0 and numerador != 0:
+                prediccionesRating.append([movieId, numerador/denominador])
+                #print(numerador, denominador, numerador/denominador)
+            
+            print(contador, "de", len(peliculasAEvaluar), "Pelicula:", movieId,"Valoracion", numerador/denominador)
 
 def mostrarRecomendaciones():
     with open('./ml-latest-small/movies.csv') as csvfile:
@@ -73,14 +100,18 @@ def mostrarRecomendaciones():
         movies = list(readCSV)
         movies.pop(0)
 
+        peliculasRecomendadas = [item for item in prediccionesRating if item[1] >4.9]
+
+        print(peliculasRecomendadas)
+
         print("**********//: RECOMENDACIONES ://*************")
-        for id in recomendacionesID:
-            movie = next(x for x in movies if x[0]==id)
+        for movie in peliculasRecomendadas:
+            movieToPrint = next(x for x in movies if x[0]==movie[0])
             print("*******************************")
-            print("Title: ", movie[1])
-            print("Categories: ", movie[2])
+            print("Title: ", movieToPrint[1])
+            print("Categories: ", movieToPrint[2])
             print("*******************************")
-        print("Recomendaciones: ", len(recomendacionesID))
+        print("Recomendaciones: ", len(peliculasRecomendadas))
 
 with open('./ml-latest-small/movies.csv') as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
@@ -107,19 +138,17 @@ with open('./ml-latest-small/movies.csv') as csvfile:
         randomMoviesRatings.append([randomMovies[x][0], calification])
         sumatorio += calification
     
-    mediaUsuarioActual = sumatorio/(numberOfMovies-1)
+    mediaUsuarioActual = sumatorio/(numberOfMovies)
 
     # GENERAMOS LISTA DE VECINOS
     similitudUsuarios()
 
     # COGEMOS LOS 20 PRIMEROS O >0.5
-    vecinosBuenos = [item for item in similitudes if float(item[1])>0.5]
-    if len(vecinosBuenos) > 20:
-        vecinosBuenos = vecinosBuenos[0:20]
+    vecinosBuenos = similitudes[0:20]
     
     # GENERAR RECOMENDACIONES
-    recomendaciones(vecinosBuenos)
-    recomendacionesID = list(dict.fromkeys(recomendacionesID))
+    predicciones(vecinosBuenos)
+    print(len(prediccionesRating))
 
     # PRINT RECOMENDACIONES
     mostrarRecomendaciones()
