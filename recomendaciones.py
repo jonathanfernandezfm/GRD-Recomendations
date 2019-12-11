@@ -102,7 +102,7 @@ def mostrarRecomendaciones():
 
         peliculasRecomendadas = [item for item in prediccionesRating if item[1] >4.9]
 
-        print(peliculasRecomendadas)
+        # print(peliculasRecomendadas)
 
         print("**********//: RECOMENDACIONES ://*************")
         for movie in peliculasRecomendadas:
@@ -148,7 +148,7 @@ with open('./ml-latest-small/movies.csv') as csvfile:
     
     # GENERAR RECOMENDACIONES
     predicciones(vecinosBuenos)
-    print(len(prediccionesRating))
+    # print(len(prediccionesRating))
 
     # PRINT RECOMENDACIONES
     mostrarRecomendaciones()
