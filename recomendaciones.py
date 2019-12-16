@@ -1,19 +1,20 @@
 import csv
 import math
-from random import seed
 from random import random
 
-numberOfMovies = 20
-randomMovies = []
-randomMoviesRatings = []
-mediaUsuarioActual = 0
-similitudes = []
-peliculasAEvaluar = []
-prediccionesRating = []
+numberOfMovies = 20         # Numero de peliculas a evaluar
+randomMovies = []           # Lista de peliculas aleatorias
+randomMoviesRatings = []    # Lista de ratings a peliculas aleatorias
+mediaUsuarioActual = 0      # Media de usuario activo
+similitudes = []            # Lista con [usuario, pearson]
+peliculasAEvaluar = []      # Peliculas no vistas a predecir
+prediccionesRating = []     # Prediciones de las peliculas
 
+# SORTING
 def sortSimilitudes(val):
     return val[1]
 
+# FUNCION PARA CALCULAR PEARSONS
 def similitudUsuarios():
     with open('./ml-latest-small/ratings.csv') as csvfile:
         ratingsReader = csv.reader(csvfile, delimiter=',')
@@ -56,6 +57,7 @@ def similitudUsuarios():
 
         similitudes.sort(key=lambda x: x[1], reverse=True)
 
+# FUNCION PARA CALCULAR LAS PREDICCIONES
 def predicciones(vecinos):
     with open('./ml-latest-small/ratings.csv') as csvfile:
         ratingsReader = csv.reader(csvfile, delimiter=',')
@@ -94,6 +96,7 @@ def predicciones(vecinos):
             
             print(contador, "de", len(peliculasAEvaluar), "Pelicula:", movieId,"Valoracion", numerador/denominador)
 
+# FUNCION PARA MOSTRAR LAS PELICULAS >4.9
 def mostrarRecomendaciones():
     with open('./ml-latest-small/movies.csv') as csvfile:
         readCSV = csv.reader(csvfile, delimiter=',')
@@ -113,12 +116,14 @@ def mostrarRecomendaciones():
             print("*******************************")
         print("Recomendaciones: ", len(peliculasRecomendadas))
 
+
 with open('./ml-latest-small/movies.csv') as csvfile:
     readCSV = csv.reader(csvfile, delimiter=',')
     csvList = list(readCSV)
     calification = 0
     sumatorio = 0
 
+    # OBTENEMOS 20 PELICULAS ALEATORIAS
     for x in range(0,numberOfMovies):
         randomMovies.append(csvList[int(random()*len(csvList))])
         calification = input("Inserta una calificacion para " + randomMovies[x][1] + ": ")
@@ -138,6 +143,7 @@ with open('./ml-latest-small/movies.csv') as csvfile:
         randomMoviesRatings.append([randomMovies[x][0], calification])
         sumatorio += calification
     
+    # MEDIA DE USUARIO ACTIVO
     mediaUsuarioActual = sumatorio/(numberOfMovies)
 
     # GENERAMOS LISTA DE VECINOS
