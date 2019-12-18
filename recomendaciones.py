@@ -10,10 +10,6 @@ similitudes = []            # Lista con [usuario, pearson]
 peliculasAEvaluar = []      # Peliculas no vistas a predecir
 prediccionesRating = []     # Prediciones de las peliculas
 
-# SORTING
-def sortSimilitudes(val):
-    return val[1]
-
 # FUNCION PARA CALCULAR PEARSONS
 def similitudUsuarios():
     with open('./ml-latest-small/ratings.csv') as csvfile:
@@ -150,7 +146,7 @@ with open('./ml-latest-small/movies.csv') as csvfile:
     similitudUsuarios()
 
     # COGEMOS LOS 20 PRIMEROS O >0.5
-    vecinosBuenos = similitudes[0:20]
+    vecinosBuenos = similitudes[0:10]
     
     # GENERAR RECOMENDACIONES
     predicciones(vecinosBuenos)
